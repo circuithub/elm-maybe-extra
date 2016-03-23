@@ -4,6 +4,7 @@ module Maybe.Extra
   , andMap, next, prev, or
   , maybeToList, maybeToArray
   , traverse, combine, traverseArray, combineArray
+  , filter
   ) where
 
 {-| Convenience functions for Maybe.
@@ -77,7 +78,7 @@ mapDefault d f m =
   case m of
     Nothing -> d
     Just a  -> f a
-  
+
 {-| Combine two `Maybe`s with the given function. If one of the `Maybe`s is `Nothing`, the result is `Nothing`.
 
     map2 (+) (Just 1) (Just 2) == Just 3
@@ -219,3 +220,15 @@ traverseArray f =
 {-|-}
 combineArray : Array.Array (Maybe a) -> Maybe (Array.Array a)
 combineArray = traverseArray identity
+
+
+{-| Take a `Maybe` and a predicate function and return a `Maybe` with the original value when a predicate matches.
+
+    filter (\v -> v == 1) (Just 1) == Just 1
+    filter (\v -> v == 2) (Just 1) == Nothing
+-}
+filter : (a -> Bool) -> Maybe a -> Maybe a
+filter f m =
+  case Maybe.map f m of
+    Just True -> m
+    _ -> Nothing
