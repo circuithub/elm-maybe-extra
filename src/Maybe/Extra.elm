@@ -83,7 +83,7 @@ mapDefault d f m =
 Advanced functional programmers will recognize this as the implementation of `<*>` for `Maybe`s from the `Applicative` typeclass.
 -}
 andMap : Maybe (a -> b) -> Maybe a -> Maybe b
-andMap f x = x `andThen` (\x' -> f `andThen` (\f' -> Just <| f' x'))
+andMap f x = x |> andThen (\x_ -> f |> andThen (\f_ -> Just <| f_ x_))
 
 
 {-| Take two `Maybe` values. If the first one equals `Nothing`, return `Nothing`. Otherwise return the second value.
