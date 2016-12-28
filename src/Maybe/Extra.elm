@@ -1,9 +1,21 @@
-module Maybe.Extra exposing
-  ( (?), join, isNothing, isJust
-  , mapDefault, andMap, next, prev, or
-  , maybeToList, maybeToArray
-  , traverse, combine, traverseArray, combineArray
-  )
+module Maybe.Extra
+    exposing
+        ( (?)
+        , join
+        , isNothing
+        , isJust
+        , mapDefault
+        , andMap
+        , next
+        , prev
+        , or
+        , maybeToList
+        , maybeToArray
+        , traverse
+        , combine
+        , traverseArray
+        , combineArray
+        )
 
 {-| Convenience functions for Maybe.
 
@@ -20,12 +32,15 @@ module Maybe.Extra exposing
 import Array
 import Maybe exposing (..)
 
+
 {-| Flipped, infix version of `withDefault`.
 
     head [] ? 0 == 0
 -}
 (?) : Maybe a -> a -> a
-(?) mx x = withDefault x mx
+(?) mx x =
+    withDefault x mx
+
 
 {-| Flattens nested Maybes
 
@@ -35,9 +50,13 @@ import Maybe exposing (..)
 -}
 join : Maybe (Maybe a) -> Maybe a
 join mx =
-  case mx of
-    Just x -> x
-    Nothing -> Nothing
+    case mx of
+        Just x ->
+            x
+
+        Nothing ->
+            Nothing
+
 
 {-| Conveniently check if a `Maybe` matches `Nothing`.
 
@@ -47,9 +66,13 @@ join mx =
 -}
 isNothing : Maybe a -> Bool
 isNothing m =
-  case m of
-    Nothing -> True
-    Just _  -> False
+    case m of
+        Nothing ->
+            True
+
+        Just _ ->
+            False
+
 
 {-| Conveniently check if a `Maybe` matches `Just _`.
 
@@ -59,9 +82,13 @@ isNothing m =
 -}
 isJust : Maybe a -> Bool
 isJust m =
-  case m of
-    Nothing -> False
-    Just _  -> True
+    case m of
+        Nothing ->
+            False
+
+        Just _ ->
+            True
+
 
 {-| Take a default value, a function and a `Maybe`.
 Return the default value if the `Maybe` is `Nothing`.
@@ -70,9 +97,13 @@ That is, `mapDefault d f` is equivalent to `Maybe.map f >> Maybe.withDefault d`.
 -}
 mapDefault : b -> (a -> b) -> Maybe a -> b
 mapDefault d f m =
-  case m of
-    Nothing -> d
-    Just a  -> f a
+    case m of
+        Nothing ->
+            d
+
+        Just a ->
+            f a
+
 
 {-| Apply the function that is inside `Maybe` to a value that is inside `Maybe`. Return the result inside `Maybe`. If one of the `Maybe` arguments is `Nothing`, return `Nothing`.
 
@@ -83,7 +114,8 @@ mapDefault d f m =
 Advanced functional programmers will recognize this as the implementation of `<*>` for `Maybe`s from the `Applicative` typeclass.
 -}
 andMap : Maybe (a -> b) -> Maybe a -> Maybe b
-andMap f x = x |> andThen (\x_ -> f |> andThen (\f_ -> Just <| f_ x_))
+andMap f x =
+    x |> andThen (\x_ -> f |> andThen (\f_ -> Just <| f_ x_))
 
 
 {-| Take two `Maybe` values. If the first one equals `Nothing`, return `Nothing`. Otherwise return the second value.
@@ -95,7 +127,8 @@ andMap f x = x |> andThen (\x_ -> f |> andThen (\f_ -> Just <| f_ x_))
 Advanced functional programmers will recognize this as the implementation of `*>` for `Maybe`s from the `Applicative` typeclass.
 -}
 next : Maybe a -> Maybe b -> Maybe b
-next = map2 (flip always)
+next =
+    map2 (flip always)
 
 
 {-| Take two `Maybe` values. If the second one equals `Nothing`, return `Nothing`. Otherwise return the first value.
@@ -107,7 +140,8 @@ next = map2 (flip always)
 Advanced functional programmers will recognize this as the implementation of `<*` for `Maybe`s from the `Applicative` typeclass.
 -}
 prev : Maybe a -> Maybe b -> Maybe a
-prev = map2 always
+prev =
+    map2 always
 
 
 {-|
@@ -124,9 +158,12 @@ prev = map2 always
 -}
 or : Maybe a -> Maybe a -> Maybe a
 or ma mb =
-  case ma of
-    Nothing -> mb
-    Just _ -> ma
+    case ma of
+        Nothing ->
+            mb
+
+        Just _ ->
+            ma
 
 
 {-| Return an empty list on `Nothing` or a list with one element, where the element is the value of `Just`.
@@ -136,9 +173,12 @@ or ma mb =
 -}
 maybeToList : Maybe a -> List a
 maybeToList m =
-  case m of
-    Nothing -> []
-    Just x -> [x]
+    case m of
+        Nothing ->
+            []
+
+        Just x ->
+            [ x ]
 
 
 {-| Return an empty array on `Nothing` or a list with one element, where the element is the value of `Just`.
@@ -149,9 +189,12 @@ maybeToList m =
 -}
 maybeToArray : Maybe a -> Array.Array a
 maybeToArray m =
-  case m of
-    Nothing -> Array.empty
-    Just x -> Array.repeat 1 x
+    case m of
+        Nothing ->
+            Array.empty
+
+        Just x ->
+            Array.repeat 1 x
 
 
 {-| Take a function that returns `Maybe` value and a list. Map a function over each element of the list. Collect the result in the list within `Maybe`.
@@ -160,13 +203,16 @@ maybeToArray m =
 -}
 traverse : (a -> Maybe b) -> List a -> Maybe (List b)
 traverse f =
-  let
-    step e acc =
-      case f e of
-        Nothing -> Nothing
-        Just x -> map ((::)x) acc
-  in
-    List.foldr step (Just [])
+    let
+        step e acc =
+            case f e of
+                Nothing ->
+                    Nothing
+
+                Just x ->
+                    map ((::) x) acc
+    in
+        List.foldr step (Just [])
 
 
 {-| Take a list of `Maybe`s and return a `Maybe` with a list of values. `combine == traverse identity`.
@@ -176,21 +222,26 @@ traverse f =
     combine [Just 1, Nothing, Just 3] == Nothing
 -}
 combine : List (Maybe a) -> Maybe (List a)
-combine = traverse identity
+combine =
+    traverse identity
 
 
-{-|-}
+{-| -}
 traverseArray : (a -> Maybe b) -> Array.Array a -> Maybe (Array.Array b)
 traverseArray f =
-  let
-    step e acc =
-      case f e of
-        Nothing -> Nothing
-        Just x -> map (Array.push x) acc
-  in
-    Array.foldl step (Just Array.empty)
+    let
+        step e acc =
+            case f e of
+                Nothing ->
+                    Nothing
+
+                Just x ->
+                    map (Array.push x) acc
+    in
+        Array.foldl step (Just Array.empty)
 
 
-{-|-}
+{-| -}
 combineArray : Array.Array (Maybe a) -> Maybe (Array.Array a)
-combineArray = traverseArray identity
+combineArray =
+    traverseArray identity
